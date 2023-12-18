@@ -1,0 +1,239 @@
+---
+title: "Noise Ceiling Estimation for Representational Similarity Matrices"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+    
+    toc: true
+    toc-location: left
+    toc-expand: 2
+    toc-depth: 3
+    toc-title: Contents
+    number-sections: true
+    number-depth: 3
+  pdf: 
+    default
+filters:
+  - pseudocode
+
+bibliography: references.bib
+link-citations: true
+
+header-includes:
+  - \usepackage{algorithm2e}
+---
+
+more about Quarto see <https://quarto.org>.
+
+# Representational Similarity Analysis (RSA) in a nutshell {#sec-RSA}
+
+The idea is to compare the representational geometry of some neural data with that of a model (@kriegeskorte2008). For example, we stimulate participants with each several repetitions of different visual stimulus categories. In fMRI, we then run a GLM with separate regressors per $k$ category, extract the voxel estimates and put them into a vector $v_k$ of a particular ROI we are interested in. For MEEG, $v_k$ is typically composed of the electrical potentials from the different channels (e.g., electrodes) of an grand average event-related potential (ERP) -- an average over several dozens of repetitions or epochs, and the following is then estimated for each time point of the ERP separately (but see @sec-tr). We then correlate all $v_k$ with each other to get a $k \times k$ (symmetric) representational similarity matrix (*RSM*) $D$ (or pattern similarity matrix *PSM*) representing the neural data (*data RSM*). For simplicity, and for the sake of this work, this part of the analysis will be named *first stage* of an *RSA*.
+
+However, the main interest lies usually on the results of a second stage of an *RSA*. The lower triangle of $D$ is then (rank) correlated with a $k \times k$ *model RSM* $M$. Different $M$ can be compared to each other, e.g. via the magnitude of their correlation with $D$. For group level inference, $D$ can be averaged (but see @sec-Fisher) to $\bar{D}$, and the result can be (rank) correlated with $M$.
+
+# Excursion: Fisher-r-to-z transformation of correlation coefficients {#sec-Fisher}
+
+Fisher r-to-z transformation (i.e., $z=arctanh(r)$ or @eq-r2z) for correlation coefficients (including those for noise ceilings) is often not reported in the RSA literature (exceptions, e.g., @carlin2017 ), and some packages even haven't implemented it for some reasons (e.g., see discussion [here](https://github.com/rsagroup/rsatoolbox/issues/370)).
+
+$$
+z = \frac{1}{2} ln \left[  \dfrac{1+r}{1-r} \right]
+$$ {#eq-r2z}
+
+For steps in which any $r$ needs to be averaged (e.g., across samples, or across subjects), mean $r$ is however biased, especially for $r > 0.5$. The numeric difference for low $r$ can be treated as neglectable. However, due to the low costs of transformation, I will always implicitly assume that $r$ values are transformed to $z$ for each step that includes e.g., averaging or statistics. After that being done, for the sake of easier interpretability, it is then transformed back using $r = tanh(z)$ or @eq-z2r
+
+$$
+r = \dfrac{e^{2z}-1}{e^{2z}+1}
+$$ {#eq-z2r}
+
+# Noise ceiling (NC) for (second stage) RSA {#sec-NC-RSA}
+
+To get an estimate of how well the best possible model could perform, given the noise conditions in the data, noise ceilings (*NC* or $\nu$) can be estimated (e.g., @lage-castellanos2019). I found versions suitable for RSA. Both of them are applied to estimate NCs for second stage RSA.
+
+## Boundary procedure (group level inference) {#sec-NCbound-RSA}
+
+The boundary procedure was for example used in @kaniuth2022 and @xie2022 and implemented in @nili2014. The lower $\nu_{lower}$ and upper bound $\nu_{upper}$ of the noise ceiling are estimated separately:
+
+For the upper bound
+
+1.  Estimate an average $D$ ($\bar{D}$) across participants.
+2.  Correlate the (lower triangular) of each participants $D_i$ to $\bar{D}$, and retrieve $\nu_{u,i}$
+3.  Average across $\nu_{u,i}$, to get $\nu_{upper}$
+
+This is the upper bound, because it is an overestimated noise ceiling, as $\bar{D}$ and $D_i$ share some information about one participant.
+
+For the lower bound,
+
+1.  For each participant, estimate $\bar{D}^{(-i)}$ across participants, which is the average $D$ but without participant $i$.
+2.  Correlate the (lower triangular) of each $D_i$ to $\bar{D}^{(-i)}$, and retrieve $\nu_{l,i}$
+3.  Average across $\nu_{l,i}$, to get $\nu_{lower}$
+
+This is the lower bound, because $\bar{D}^{(-i)}$ does not have as much data as $\bar{D}$ (i.e., participant $i$). Typically, $\nu_l$ and $\nu_u$ bound span a region which is shown alongside with the outcome of the (second stage) RSA.
+
+## Split-half approach (single-participant or group level) {#sec-NCsh-RSA}
+
+I have not found any practical example where split half noise ceiling $\nu_{sh}$ is used in the context of *RSA*, but rather for calculation of noise ceilings in other contexts. However, @lage-castellanos2019 proposes this method also for RSA matrices, without going into detail. For typical (second stage) *RSA* (on the single participant level), the idea would roughly be the follows:
+
+1.  Split the trials per condition in half, and estimate from each respective half the corresponding *RSA*, $D_{i,1}$ and $D_{i,2}$
+2.  Correlate the (lower diagonal) of $D_{i,1}$ and $D_{i,2}$ (@eq-castellanos1).
+3.  Adjust this correlation coefficient for the reduced number of samples that enter the correlation in the split-half approach compared to a correlation that would use as many data as the full data set had for each partner that enters the correlation (@eq-castellanos2).
+
+$$
+\nu_{sh,unadj} = \dfrac{cov(\hat{\beta_1},\hat{\beta_2})}{\sqrt{\hat{\sigma_{\hat{\beta_1}}} \hat{\sigma_{\hat{\beta_2}}}}}
+$$ {#eq-castellanos1}
+
+where $\beta$ are estimates from fMRI GLMs of the respective two splits.
+
+$$
+\nu_{sh} = \sqrt{\dfrac{2\nu_{sh,unadj}}{\nu_{sh,unadj}+1}}
+$$ {#eq-castellanos2}
+
+However, see @sec-adj and @sec-adj-sb, as it is unclear, which version is correct for @eq-castellanos2. Also note, that for group level, the adjustment factor might maybe not work, as the Spearman-Brown adjustment factor (@sec-adj-sb) might be rather made for an individual level correlation value adjustment (TODO: check if this is correct). But maybe the method proposed in @sec-adj-emp might work.
+
+# Proposed method: noise ceiling for participant-level RSMs (first stage RSA) {#sec-NC-PSM}
+
+For the sake of clarity, we define any symmetric $D_i$ for participant $i$ as a matrix with its on- ($d_{q,q}$) and off-diagonal ($d_{q,p}^{(q \ne p)}$) elements as in @eq-def.
+
+$$ 
+D_i = \begin{pmatrix}
+d_{1,1} & d_{1,2} & d_{1,3} & d_{1,4} \\
+d_{2,1} & d_{2,2} & d_{2,3} & d_{2,4} \\
+d_{3,1} & d_{3,2} & d_{3,3} & d_{3,4} \\
+d_{4,1} & d_{4,2} & d_{4,3} & d_{4,4} 
+\end{pmatrix} % bmatrix with brackets
+$$ {#eq-def}
+
+We want to estimate a noise ceiling , that is, the maximal possible correlation value that can be achieved, given the noise conditions. In *RSMs* (first stage *RSA*) this is the maximal possible correlation value we can expect within the *RSM.* The on-diagonal elements offer themselves as natural noise ceiling, as their value of $1$ is are the upper bound of what can be achieved, namely the correlation of the pattern vectors $v_k$ with themselves. However, this value is overestimated, then even with pure noise in the data, the on-diagonals would be $1$. However, we could use a split-half approach.
+
+For instance, we have a $D_i$ estimated on the full data and we want to estimate $\nu$ for one particular element $d_{q,p}^{(q \ne p)}$ of $D_i$, i.e., for one off-diagonal correlation coefficient. We split the data set in two halves, and estimate $D_{i,sh}$ by correlating $v_{k,1}$ (1st half) and $v_{k,2}$ (2nd half), which are e.g. the ERPs from the respective half of epochs, effectively making $D_{i,sh}$ asymmetric (@eq-defsh). (Similar [as done here](http://www.newbi4fmri.com/tutorial-9-mvpa-rsa) for a different purpose).
+
+$$ 
+D_{i,sh} = \begin{pmatrix}
+d_{1,1}^{sh} & d_{1,2}^{sh} & d_{1,3}^{sh} & d_{1,4}^{sh} \\
+d_{2,1}^{sh} & d_{2,2}^{sh} & d_{2,3}^{sh} & d_{2,4}^{sh} \\
+d_{3,1}^{sh} & d_{3,2}^{sh} & d_{3,3}^{sh} & d_{3,4}^{sh} \\
+d_{4,1}^{sh} & d_{4,2}^{sh} & d_{4,3}^{sh} & d_{4,4}^{sh} 
+\end{pmatrix} % bmatrix with brackets
+$$ {#eq-defsh}
+
+We need to make one assumption: the noise structure is the same in all $k$ conditions.
+
+Then we can treat the on-diagonals $d_{q,q}^{sh}$ as the noise ceiling of the off-diagonals $d_{q,p}^{(q \ne p), sh}$. The on-diagonals are the correlations within the same category, whereas the off-diagonals are correlations between categories. Our assumption is, that the prediction of one category by itself is the maximal possible prediction that can be achieved. Whereas $d_{q,q}$ were estimated to $1$, as there was not another test set of $v_k$ to be correlated with, $d_{q,q}^{sh}$ was estimated by two sets of $v_k$.
+
+The interpretation of the noise ceiling is slighly different than the noise ceiling estimated for the correlation between $D$ and $M$, which is typically for model comparison and states, how well a model can theoretically achieve. Here, it's how well a correlation coefficient can score between categories, and this becomes higher and higher, as more similar the categories are, peaking in the highest possible prediction, when the categories the same (but the trials used for calculation are different).
+
+Assuming equal noise structure through all categories, one could estimate $\nu_{sh, unadj}$ as average over all (r-to-z transformed and backtransformed) on-diagonals $d_{q,q}^{sh}$, i.e.:
+
+$$
+\nu_{sh, unadj} = tanh \left( \frac{1}{k} \sum_q^k arctanh(d_{q,q}^{sh}) \right)
+$$ {#eq-sh-psm}
+
+The split-half approach could be repeated with e.g., 1000 different splits to get a more stable estimate of $\nu_{sh, unadj}$, i.e., stratified Monte Carlo splitting.
+
+Now we need to adjust this value for the reduced amount of data in the split half approach (@sec-adj).
+
+Potential Issue: If the noise ceiling is estimated quite stable via res
+
+# Adjustment coefficient {#sec-adj}
+
+When calculating the split-half noise ceiling ($\nu_{sh}$) via a correlation coefficient, the correlation estimate is biased downwards because the correlation does not have the same amount of data, then the original correlation had, for which the $\nu$ is to be estimated. If one has an abundance of data, and does not care about dropping half of it, one could just use the full data set for noise ceiling estimation, and then drop half of it. Then one has an accurate noise ceiling estimate for correlations for the $D_i$ or $D$ of the remaining trials with a potential $M$ (i.e., the second stage and often main part of interest of the *RSA*). The same logic should count for $\nu_{sh}$ estimation for *PSM*s.
+
+## Spearman-Brown prophecy formula {#sec-adj-sb}
+
+The recent paper of @lage-castellanos2019 mentions an adjustment for this underestimation (@eq-castellanos1 & @eq-castellanos2). They reference @huth2012 and @luking2017 for the $\nu_{sh}$ calculation. The origin of the adjustment factor (@eq-castellanos2) is not clear. @luking2017 name the *Spearman-Brown prophecy formula* to adjust for their split-half Pearson correlation coefficient used, writing the formula
+
+$$
+\nu_{sh} = \dfrac{2 \nu_{sh,unadj}}{1+ \nu_{sh,unadj}}
+$$ {#eq-luking1}
+
+The origin of the square root in @eq-castellanos2 compared to @eq-luking1 is not clear. However, it inflates the noise ceiling estimation. @warrens2016 (TODO: read), to which the r package *splithalfr* refers to, and @pronk2022, also use @eq-luking1 and states, that it the method holds only if $\sigma_1^{sh}$ and $\sigma_2^{sh}$ do not differ substantially, and if the lengths of the two halves do not differ significantly. @warrens2016 also introduces alternative adjustment factors.
+
+Maybe: is @eq-castellanos2 thinking it's an $R^2$ estimate instead of $\rho$, and therefore for some reasons use square root?
+
+@huth2012 only briefly mentions noise ceiling estimation in the appendix, with reference to @hsu2004, which seems mathematical rather complex, and based on spike train data (also could not find an exact formula on which this is based on).
+
+[Wikipedia](https://en.wikipedia.org/wiki/Spearman–Brown_prediction_formula) also describes the Spearman-Brown Formula as
+
+$$
+\nu_{adj}=\frac{n \nu_{sh,unadj}}{1+(n-1) \nu_{sh,unadj}}
+$$ {#eq-SB}
+
+where $n$ is the factor by which the length of the data is changed, i.e., if reduced from 10 to 5, then it's 2. If $n=2$ such as in split half noise ceiling estimation, then this reduced to @eq-luking1.
+
+## Empirical adjustment factor / projection factor {#sec-adj-emp}
+
+Here, an empirical adjustment factor is proposed. The idea is simple, and I don't find reasons why it should be less accurate (TODO: simulate?) than the analytic suggestion of @lage-castellanos2019, of which the origin is not fully traceable right now.
+
+We already estimated unadjusted split half noise ceilings in @sec-NC-PSM via @eq-sh-psm as an average of on-diagonal correlation coefficients.
+
+Now we could use the off-diagonal elements $d_{q,p}^{(q \ne p)}$ to estimate the adjustment factor. We know the original correlation values of the full-data RSM $D_i$. Further, we already estimated the split half data RSM $D_{i,sh}$ and its off-diagonal values $d_{q,p}^{(q \ne p), sh}$. We could now average (with r-to-z-transform and back) the off-diagonals of $D_i$ and $D_{i,sh}$, respectively, and obtain $r_f$ and $r_p$ (the full and partial correlation coefficients) (Note that all are z values).
+
+The adjustment factor $\beta$ is then
+
+$$
+\beta =  \frac{r_f}{r_p}
+$$
+
+We can simply multiply $\beta$ with the $\nu_{sh,unadj}$ to get a $\nu_{sh}$ value, which can be used as estimate for noise ceiling.
+
+$$
+\nu_{sh,adj} =  \beta \times \nu_{sh, unadj} 
+$$
+
+``` pseudocode
+#| label: alg-quicksort
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{RSM split half noise ceiling}
+\begin{algorithmic}
+\Procedure{estimate split half correlation}{$A, p, r$}
+  \If{$p < r$}
+    \State $q = $ \Call{Partition}{$A, p, r$}
+    \State \Call{Quicksort}{$A, p, q - 1$}
+    \State \Call{Quicksort}{$A, q + 1, r$}
+  \EndIf
+\EndProcedure
+\Procedure{empirical projection}{$A, p, r$}
+  \State $x = A[r]$
+  \State $i = p - 1$
+  \For{$j = p$ \To $r - 1$}
+    \If{$A[j] < x$}
+      \State $i = i + 1$
+      \State exchange
+      $A[i]$ with     $A[j]$
+    \EndIf
+    \State exchange $A[i]$ with $A[r]$
+  \EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+```
+
+# Time-resolved or concatenated analysis? {#sec-tr}
+
+WIP
+
+The EEG literature is full of time-resolved second stage RSA (e.g., XXXREF, XXXREF, XXXREF). However, for first-stage RSA, one might be interested in the pattern similarity over a particular time window (e.g. post-stimulus onset) rather than each timepoint individually. Possible options, however not yet found in the literature are:
+
+1.  Concatenating electrode voltages over time and correlating concatenated vectors rather than only channel activations of one timepoint
+2.  Do the usual (first stage) RSA for each time point, and average (z-transformed) RSMs across time.
+
+# Sandbox
+
+WIP
+
+for RSA (2nd level) TODO: does it work even?
+
+For instance, we have a *data RSM* and want to estimate the NC for the comparison to a *model RSM* (i.e., 2nd level of a typical *RSA*). One would split the data set into half, generate 2 *RSM*s, and correlate the off-diagonals of these *RSMs*. The resulting adjustment coefficient is the noise ceiling, but needs to be adjusted. Therefore, we calculate
+
+# References
+
+::: {#refs}
+:::
