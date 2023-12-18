@@ -13,7 +13,13 @@ format:
     number-sections: true
     number-depth: 3
   pdf: 
-    default
+    toc: true
+    toc-location: left
+    toc-expand: 2
+    toc-depth: 3
+    toc-title: Contents
+    number-sections: true
+    number-depth: 3
 filters:
   - pseudocode
 
