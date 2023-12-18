@@ -3,7 +3,7 @@ title: "Noise Ceiling Estimation for Representational Similarity Matrices"
 format:
   html:
     code-fold: true
-    code-summary: "Show the code"
+    code-summary: "Show code"
     
     toc: true
     toc-location: left
@@ -118,9 +118,9 @@ $$ {#eq-defsh}
 
 We need to make one assumption: the noise structure is the same in all $k$ conditions.
 
-Then we can treat the on-diagonals $d_{q,q}^{sh}$ as the noise ceiling of the off-diagonals $d_{q,p}^{(q \ne p), sh}$. The on-diagonals are the correlations within the same category, whereas the off-diagonals are correlations between categories. Our assumption is, that the prediction of one category by itself is the maximal possible prediction that can be achieved. Whereas $d_{q,q}$ were estimated to $1$, as there was not another test set of $v_k$ to be correlated with, $d_{q,q}^{sh}$ was estimated by two sets of $v_k$.
+Then we can treat the on-diagonals $d_{q,q}^{sh}$ as the noise ceiling of the off-diagonals $d_{q,p}^{(q \ne p), sh}$. The on-diagonals are the correlations within the same category, whereas the off-diagonals are correlations between categories. Our assumption is, that the correlation of one category with itself is the maximal possible correlation that can be achieved. Whereas $d_{q,q}$ were estimated to $1$, as there was not another test set of $v_k$ to be correlated with, $d_{q,q}^{sh}$ was estimated by two sets of $v_k$.
 
-The interpretation of the noise ceiling is slighly different than the noise ceiling estimated for the correlation between $D$ and $M$, which is typically for model comparison and states, how well a model can theoretically achieve. Here, it's how well a correlation coefficient can score between categories, and this becomes higher and higher, as more similar the categories are, peaking in the highest possible prediction, when the categories the same (but the trials used for calculation are different).
+The interpretation of the noise ceiling is slighly different than the noise ceiling estimated for the correlation between $D$ and $M$, which is typically for model comparison and states, how well a model can theoretically achieve. Here, it's how well a correlation coefficient can score between categories, and this becomes higher and higher, as more similar the categories are, peaking in the highest possible correlation, when the categories the same (but the trials used for calculation are different).
 
 Assuming equal noise structure through all categories, one could estimate $\nu_{sh, unadj}$ as average over all (r-to-z transformed and backtransformed) on-diagonals $d_{q,q}^{sh}$, i.e.:
 
@@ -132,11 +132,9 @@ The split-half approach could be repeated with e.g., 1000 different splits to ge
 
 Now we need to adjust this value for the reduced amount of data in the split half approach (@sec-adj).
 
-Potential Issue: If the noise ceiling is estimated quite stable via res
-
 # Adjustment coefficient {#sec-adj}
 
-When calculating the split-half noise ceiling ($\nu_{sh}$) via a correlation coefficient, the correlation estimate is biased downwards because the correlation does not have the same amount of data, then the original correlation had, for which the $\nu$ is to be estimated. If one has an abundance of data, and does not care about dropping half of it, one could just use the full data set for noise ceiling estimation, and then drop half of it. Then one has an accurate noise ceiling estimate for correlations for the $D_i$ or $D$ of the remaining trials with a potential $M$ (i.e., the second stage and often main part of interest of the *RSA*). The same logic should count for $\nu_{sh}$ estimation for *PSM*s.
+When calculating the split-half noise ceiling ($\nu_{sh}$) via a correlation coefficient, the correlation estimate is biased downwards because the correlation does not have the same amount of data, then the original correlation had, for which the $\nu$ is to be estimated. If one has an abundance of data, and does not care about dropping half of it, one could just use the full data set for noise ceiling estimation, and then drop half of it. Then one has an accurate noise ceiling estimate for correlations for the $D_i$ or $D$ of the remaining trials with a potential $M$ (i.e., the second stage and often main part of interest of the *RSA*). The same logic should count for $\nu_{sh}$ estimation for *PSM/RSM*s.
 
 ## Spearman-Brown prophecy formula {#sec-adj-sb}
 
@@ -146,7 +144,7 @@ $$
 \nu_{sh} = \dfrac{2 \nu_{sh,unadj}}{1+ \nu_{sh,unadj}}
 $$ {#eq-luking1}
 
-The origin of the square root in @eq-castellanos2 compared to @eq-luking1 is not clear. However, it inflates the noise ceiling estimation. @warrens2016 (TODO: read), to which the r package *splithalfr* refers to, and @pronk2022, also use @eq-luking1 and states, that it the method holds only if $\sigma_1^{sh}$ and $\sigma_2^{sh}$ do not differ substantially, and if the lengths of the two halves do not differ significantly. @warrens2016 also introduces alternative adjustment factors.
+The origin of the square root in @eq-castellanos2 compared to @eq-luking1 is not clear. However, it inflates the noise ceiling estimation. @warrens2016, to which the r package *splithalfr* refers to, and @pronk2022, also use @eq-luking1 and states, that it the method holds only if $\sigma_1^{sh}$ and $\sigma_2^{sh}$ do not differ substantially, and if the lengths of the two halves do not differ significantly. @warrens2016 also introduces alternative adjustment factors.
 
 Maybe: is @eq-castellanos2 thinking it's an $R^2$ estimate instead of $\rho$, and therefore for some reasons use square root?
 

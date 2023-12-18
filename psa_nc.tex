@@ -38,7 +38,7 @@
 \makeatother
 \usepackage{xcolor}
 \setlength{\emergencystretch}{3em} % prevent overfull lines
-\setcounter{secnumdepth}{3}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 % Make \paragraph and \subparagraph free-standing
 \ifx\paragraph\undefined\else
   \let\oldparagraph\paragraph
@@ -49,46 +49,6 @@
   \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
 
-\usepackage{color}
-\usepackage{fancyvrb}
-\newcommand{\VerbBar}{|}
-\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
-\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-% Add ',fontsize=\small' for more characters per line
-\usepackage{framed}
-\definecolor{shadecolor}{RGB}{241,243,245}
-\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
-\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
-\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
-\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
-\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
-\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
-\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
-\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
-\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
-\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
-\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
-\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
-\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
@@ -219,24 +179,11 @@ Matrices}
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, borderline west={3pt}{0pt}{shadecolor}, enhanced, breakable, sharp corners, frame hidden, boxrule=0pt]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, interior hidden, breakable, borderline west={3pt}{0pt}{shadecolor}, sharp corners, enhanced, frame hidden]}{\end{tcolorbox}}\fi
 
 \floatname{algorithm}{Algorithm}
 
-\renewcommand*\contentsname{Contents}
-{
-\hypersetup{linkcolor=}
-\setcounter{tocdepth}{3}
-\tableofcontents
-}
 more about Quarto see \url{https://quarto.org}.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(reshape2)}
-\FunctionTok{library}\NormalTok{(ggplot2)}
-\end{Highlighting}
-\end{Shaded}
 
 \hypertarget{sec-RSA}{%
 \section{Representational Similarity Analysis (RSA) in a
@@ -257,8 +204,8 @@ ERP separately (but see Section~\ref{sec-tr}). We then correlate all
 \(v_k\) with each other to get a \(k \times k\) (symmetric)
 representational similarity matrix (\emph{RSM}) \(D\) (or pattern
 similarity matrix \emph{PSM}) representing the neural data (\emph{data
-RSM}). Here, this part of the analysis will be named first stage of an
-\emph{RSA}.
+RSM}). For simplicity, and for the sake of this work, this part of the
+analysis will be named \emph{first stage} of an \emph{RSA}.
 
 However, the main interest lies usually on the results of a second stage
 of an \emph{RSA}. The lower triangle of \(D\) is then (rank) correlated
@@ -458,18 +405,18 @@ We need to make one assumption: the noise structure is the same in all
 Then we can treat the on-diagonals \(d_{q,q}^{sh}\) as the noise ceiling
 of the off-diagonals \(d_{q,p}^{(q \ne p), sh}\). The on-diagonals are
 the correlations within the same category, whereas the off-diagonals are
-correlations between categories. Our assumption is, that the prediction
-of one category by itself is the maximal possible prediction that can be
-achieved. Whereas \(d_{q,q}\) were estimated to \(1\), as there was not
-another test set of \(v_k\) to be correlated with, \(d_{q,q}^{sh}\) was
-estimated by two sets of \(v_k\).
+correlations between categories. Our assumption is, that the correlation
+of one category with itself is the maximal possible correlation that can
+be achieved. Whereas \(d_{q,q}\) were estimated to \(1\), as there was
+not another test set of \(v_k\) to be correlated with, \(d_{q,q}^{sh}\)
+was estimated by two sets of \(v_k\).
 
 The interpretation of the noise ceiling is slighly different than the
 noise ceiling estimated for the correlation between \(D\) and \(M\),
 which is typically for model comparison and states, how well a model can
 theoretically achieve. Here, it's how well a correlation coefficient can
 score between categories, and this becomes higher and higher, as more
-similar the categories are, peaking in the highest possible prediction,
+similar the categories are, peaking in the highest possible correlation,
 when the categories the same (but the trials used for calculation are
 different).
 
@@ -488,8 +435,6 @@ stratified Monte Carlo splitting.
 Now we need to adjust this value for the reduced amount of data in the
 split half approach (Section~\ref{sec-adj}).
 
-Potential Issue: If the noise ceiling is estimated quite stable via res
-
 \hypertarget{sec-adj}{%
 \section{Adjustment coefficient}\label{sec-adj}}
 
@@ -503,7 +448,7 @@ and then drop half of it. Then one has an accurate noise ceiling
 estimate for correlations for the \(D_i\) or \(D\) of the remaining
 trials with a potential \(M\) (i.e., the second stage and often main
 part of interest of the \emph{RSA}). The same logic should count for
-\(\nu_{sh}\) estimation for \emph{PSM}s.
+\(\nu_{sh}\) estimation for \emph{PSM/RSM}s.
 
 \hypertarget{sec-adj-sb}{%
 \subsection{Spearman-Brown prophecy formula}\label{sec-adj-sb}}
@@ -527,8 +472,8 @@ coefficient used, writing the formula
 The origin of the square root in Equation~\ref{eq-castellanos2} compared
 to Equation~\ref{eq-luking1} is not clear. However, it inflates the
 noise ceiling estimation. Warrens
-(\protect\hyperlink{ref-warrens2016}{2016}) (TODO: read), to which the r
-package \emph{splithalfr} refers to, and Pronk et al.
+(\protect\hyperlink{ref-warrens2016}{2016}), to which the r package
+\emph{splithalfr} refers to, and Pronk et al.
 (\protect\hyperlink{ref-pronk2022}{2022}), also use
 Equation~\ref{eq-luking1} and states, that it the method holds only if
 \(\sigma_1^{sh}\) and \(\sigma_2^{sh}\) do not differ substantially, and
@@ -544,7 +489,7 @@ Huth et al. (\protect\hyperlink{ref-huth2012}{2012}) only briefly
 mentions noise ceiling estimation in the appendix, with reference to
 Hsu, Borst, and Theunissen (\protect\hyperlink{ref-hsu2004}{2004}),
 which seems mathematical rather complex, and based on spike train data
-(also could not find an exact formula).
+(also could not find an exact formula on which this is based on).
 
 \href{https://en.wikipedia.org/wiki/Spearman–Brown_prediction_formula}{Wikipedia}
 also describes the Spearman-Brown Formula as
@@ -563,9 +508,10 @@ Equation~\ref{eq-luking1}.
 factor}\label{sec-adj-emp}}
 
 Here, an empirical adjustment factor is proposed. The idea is simple,
-and I don't find reasons why it should be less accurate (TODO: simulate
-and test, TODO how?) than the analytic suggestion, of which the origin
-is not fully traceable right now.
+and I don't find reasons why it should be less accurate (TODO:
+simulate?) than the analytic suggestion of Lage-Castellanos et al.
+(\protect\hyperlink{ref-lage-castellanos2019}{2019}), of which the
+origin is not fully traceable right now.
 
 We already estimated unadjusted split half noise ceilings in
 Section~\ref{sec-NC-PSM} via Equation~\ref{eq-sh-psm} as an average of
@@ -592,12 +538,6 @@ We can simply multiply \(\beta\) with the \(\nu_{sh,unadj}\) to get a
 \[
 \nu_{sh,adj} =  \beta \times \nu_{sh, unadj} 
 \]
-
-\hypertarget{algorithm-for-full-rsm-nc-estimation-incl.-empirical-projection}{%
-\section{Algorithm for full RSM NC estimation incl.~empirical
-projection}\label{algorithm-for-full-rsm-nc-estimation-incl.-empirical-projection}}
-
-test
 
 \begin{algorithm}[htb!]
 \caption{RSM split half noise ceiling}
@@ -628,6 +568,8 @@ test
 \hypertarget{sec-tr}{%
 \section{Time-resolved or concatenated analysis?}\label{sec-tr}}
 
+WIP
+
 The EEG literature is full of time-resolved second stage RSA (e.g.,
 XXXREF, XXXREF, XXXREF). However, for first-stage RSA, one might be
 interested in the pattern similarity over a particular time window
@@ -648,6 +590,8 @@ Possible options, however not yet found in the literature are:
 
 \hypertarget{sandbox}{%
 \section{Sandbox}\label{sandbox}}
+
+WIP
 
 for RSA (2nd level) TODO: does it work even?
 
