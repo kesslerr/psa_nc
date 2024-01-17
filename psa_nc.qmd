@@ -137,7 +137,7 @@ Now we need to adjust this value for the reduced amount of data in the split hal
 
 # Adjustment coefficient {#sec-adj}
 
-When calculating the split-half noise ceiling ($\nu_{sh}$) via a correlation coefficient, the correlation estimate is biased downwards because the correlation does not have the same amount of data, then the original correlation had, for which the $\nu$ is to be estimated. If one has an abundance of data, and does not care about dropping half of it, one could just use the full data set for noise ceiling estimation, and then drop half of it. Then one has an accurate noise ceiling estimate for correlations for the $D_i$ or $D$ of the remaining trials with a potential $M$ (i.e., the second stage and often main part of interest of the *RSA*). The same logic should count for $\nu_{sh}$ estimation for *PSM/RSM*s.
+When calculating the split-half noise ceiling ($\nu_{sh}$) via a correlation coefficient, the correlation estimate is biased downwards because the correlation does not have the same amount of data, then the original correlation had, for which the $\nu$ is to be estimated. If one has an abundance of data, and does not care about dropping half of it, one could just use the full data set for noise ceiling estimation, and then drop half of it. Then one has an accurate noise ceiling estimate for correlations for the $D_i$ or $D$ of the remaining trials with a potential $M$ (i.e., the second stage and often main part of interest of the *RSA*). The same logic should apply for $\nu_{sh}$ estimation for *PSM/RSM*s. However, dropping data is usually not a desired option, therefore we want to adjust the correlation coefficient (i.e., noise ceiling).
 
 ## Spearman-Brown prophecy formula {#sec-adj-sb}
 
@@ -163,11 +163,11 @@ where $n$ is the factor by which the length of the data is changed, i.e., if red
 
 ## Empirical adjustment factor / projection factor {#sec-adj-emp}
 
-Here, an empirical adjustment factor is proposed. The idea is simple, and I don't find reasons why it should be less accurate (TODO: simulate?) than the analytic suggestion of @lage-castellanos2019, of which the origin is not fully traceable right now.
+Here, an empirical adjustment factor is proposed. The idea is simple, and I don't find reasons why it should be less accurate (TODO: simulate?, compare?) than the analytic suggestion of @lage-castellanos2019, of which the origin is not fully traceable right now.
 
 We already estimated unadjusted split half noise ceilings in @sec-NC-PSM via @eq-sh-psm as an average of on-diagonal correlation coefficients.
 
-Now we could use the off-diagonal elements $d_{q,p}^{(q \ne p)}$ to estimate the adjustment factor. We know the original correlation values of the full-data RSM $D_i$. Further, we already estimated the split half data RSM $D_{i,sh}$ and its off-diagonal values $d_{q,p}^{(q \ne p), sh}$. We could now average (with r-to-z-transform and back) the off-diagonals of $D_i$ and $D_{i,sh}$, respectively, and obtain $r_f$ and $r_p$ (the full and partial correlation coefficients) (Note that all are z values).
+Now we could use the off-diagonal elements to estimate the adjustment factor. We know the original off-diagonal correlation values $d_{q,p}^{(q \ne p)}$ of the full-data RSM $D_i$. Further, we already estimated the split half data RSM $D_{i,sh}$ and its off-diagonal values $d_{q,p}^{(q \ne p), sh}$. We could now average (with r-to-z-transform and back) the off-diagonals of $D_i$ and $D_{i,sh}$, respectively, and obtain $r_f$ and $r_p$ (the full and partial correlation coefficients) (Note that all are z values).
 
 The adjustment factor $\beta$ is then
 
@@ -175,7 +175,7 @@ $$
 \beta =  \frac{r_f}{r_p}
 $$
 
-We can simply multiply $\beta$ with the $\nu_{sh,unadj}$ to get a $\nu_{sh}$ value, which can be used as estimate for noise ceiling.
+We can simply multiply $\beta$ with the $\nu_{sh,unadj}$ to get a $\nu_{sh, adj}$ value, which can be used as estimate for noise ceiling.
 
 $$
 \nu_{sh,adj} =  \beta \times \nu_{sh, unadj} 
